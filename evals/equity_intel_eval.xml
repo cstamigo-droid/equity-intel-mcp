@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  equity-intel-mcp evaluation suite — 10 read-only, deterministic Q/A pairs.
+  Verified against live data on 2026-06-14. All answers use the tool defaults
+  (no premium API keys, yfinance + Finnhub free tier + SEC EDGAR).
+
+  Run instructions: see evals/README.md
+-->
+<evals>
+
+  <!-- ── Superinvestors (Dataroma) ──────────────────────────────────────── -->
+
+  <eval id="1">
+    <tool>equity_superinvestors</tool>
+    <question>How many tracked superinvestors hold KO according to Dataroma?</question>
+    <expected_answer>9</expected_answer>
+    <notes>Calls superinvestor.fetch('KO').data['count_owners']. Value current as of 2026-06-01 13F filings.</notes>
+  </eval>
+
+  <eval id="2">
+    <tool>equity_superinvestors</tool>
+    <question>In the most recent quarter tracked, did superinvestors net buy or net sell KO?</question>
+    <expected_answer>net sell (0 buys, 6 sells)</expected_answer>
+    <notes>recent_buys=0, recent_sells=6 as of 2026-06-14.</notes>
+  </eval>
+
+  <!-- ── Insider Activity (SEC Form 4) ──────────────────────────────────── -->
+
+  <eval id="3">
+    <tool>equity_insider_activity</tool>
+    <question>Over the last 180 days, are AAPL insiders net buyers or net sellers?</question>
+    <expected_answer>net sellers</expected_answer>
+    <notes>net_selling=True for AAPL; score=-100 indicating heavy net selling. Verified 2026-06-14.</notes>
+  </eval>
+
+  <!-- ── Analyst Consensus (Finnhub) ────────────────────────────────────── -->
+
+  <eval id="4">
+    <tool>equity_analyst_consensus</tool>
+    <question>How many Wall Street analysts cover AAPL in the tool's current consensus data?</question>
+    <expected_answer>55</expected_answer>
+    <notes>analysts_count=55 from Finnhub /stock/recommendation, period 2026-06-01.</notes>
+  </eval>
+
+  <eval id="5">
+    <tool>equity_analyst_consensus</tool>
+    <question>What is the maximum confidence score the analyst consensus tool can return?</question>
+    <expected_answer>0.75</expected_answer>
+    <notes>_CONF_CAP = 0.75 in analysts.py — consensus lags price, so it is intentionally capped.</notes>
+  </eval>
+
+  <!-- ── Valuation (Yahoo Finance) ──────────────────────────────────────── -->
+
+  <eval id="6">
+    <tool>equity_valuation</tool>
+    <question>Does the valuation tool consider KO (Coca-Cola) overvalued or undervalued at current prices?</question>
+    <expected_answer>overvalued</expected_answer>
+    <notes>Fair value ~$73 vs price ~$83 (-11% upside). Tag = "overvalued". Verified 2026-06-14.</notes>
+  </eval>
+
+  <eval id="7">
+    <tool>equity_valuation</tool>
+    <question>What sector P/E multiple does the tool use for Technology stocks?</question>
+    <expected_answer>28</expected_answer>
+    <notes>_SECTOR_PE["Technology"] = 28.0 in valuation.py. Hard-coded constant.</notes>
+  </eval>
+
+  <eval id="8">
+    <tool>equity_valuation</tool>
+    <question>What sector P/E multiple does the tool use for Energy stocks?</question>
+    <expected_answer>12</expected_answer>
+    <notes>_SECTOR_PE["Energy"] = 12.0 in valuation.py. Hard-coded constant.</notes>
+  </eval>
+
+  <!-- ── Options Signal (yfinance) ──────────────────────────────────────── -->
+
+  <eval id="9">
+    <tool>equity_options_signal</tool>
+    <question>What target expiration window (in calendar days) does the options signal tool aim for?</question>
+    <expected_answer>30</expected_answer>
+    <notes>The tool picks the expiry closest to 30 calendar days from today (minimum 7 days).</notes>
+  </eval>
+
+  <!-- ── Composite Scoring ───────────────────────────────────────────────── -->
+
+  <eval id="10">
+    <tool>equity_analyze_ticker</tool>
+    <question>What is the weight assigned to the insider signal in the composite verdict?</question>
+    <expected_answer>0.35</expected_answer>
+    <notes>SOURCE_WEIGHTS["insider"] = 0.35 in analyze.py. Highest weight of all 5 directional sources.</notes>
+  </eval>
+
+</evals>
