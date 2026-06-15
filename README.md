@@ -54,7 +54,7 @@ Every tool returns **Markdown** (human-readable, default) or **JSON**
 ## Quick start
 
 ```bash
-git clone <your-repo-url> equity-intel-mcp
+git clone https://github.com/cstamigo-droid/equity-intel-mcp equity-intel-mcp
 cd equity-intel-mcp
 python -m venv .venv && .venv\Scripts\activate     # Windows
 pip install -r requirements.txt
