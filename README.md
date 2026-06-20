@@ -1,5 +1,8 @@
 # equity-intel-mcp
 
+![equity-intel-mcp - composite verdict demo](docs/demo.png)
+
+
 **Institutional-grade equity analysis for any LLM, over the Model Context Protocol.**
 
 Most "stock" integrations just echo a price. This one gives an AI agent the
