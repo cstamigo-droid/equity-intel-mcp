@@ -5,7 +5,11 @@ A uniform contract is what lets an LLM reason *across* heterogeneous signals
 inventing its own shape. Directional sources contribute a score to the composite
 verdict; informational sources (e.g. a quote snapshot) carry data only.
 """
+
 from __future__ import annotations
+
+import os
+import re
 
 from dataclasses import asdict, dataclass, field
 from typing import Any
@@ -67,8 +71,33 @@ class Signal:
             ok=False,
             score=0.0,
             confidence=0.0,
-            summary=f"no data ({error})",
+            summary=f"no data ({redact(error)})",
             data={},
-            error=error,
+            error=redact(error),
             directional=directional,
         )
+
+
+_SECRET_ENV = ("FINNHUB_API_KEY", "ALPACA_API_KEY", "ALPACA_SECRET_KEY")
+_SECRET_QS = re.compile(
+    r"((?:token|api[-_]?key|apikey|key|secret)=)[^&\s\'\"]+", re.I
+)
+
+
+def redact(text: object) -> str:
+    """Strip credentials out of any text before it reaches the agent.
+
+    Two things used to put the key in front of the model: `requests` embeds the
+    request URL in its HTTPError message (the key travelled there as `token=`),
+    and urllib3 echoes a header value back when it rejects it -- which happens
+    for a key copy-pasted with a trailing newline. Keys now travel in a header
+    and are stripped at the source; this stays as a backstop, and covers the
+    escaped forms a repr() would produce.
+    """
+    out = str(text)
+    for name in _SECRET_ENV:
+        raw = os.getenv(name, "")
+        for value in (raw, raw.strip(), repr(raw)[1:-1], repr(raw.strip())[1:-1]):
+            if len(value) >= 8:
+                out = out.replace(value, "***REDACTED***")
+    return _SECRET_QS.sub(r"\1***REDACTED***", out)

@@ -1,12 +1,13 @@
 [project]
 name = "equity-intel-mcp"
-version = "0.1.0"
+version = "0.1.1"
 description = "Institutional-grade equity analysis (insider, superinvestor, valuation) over MCP."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
+authors = [{ name = "Cristian Amigo", email = "cstamigo@gmail.com" }]
 dependencies = [
-    "mcp>=1.2.0",
+    "mcp>=1.2.0,<2",
     "pydantic>=2.6",
     "python-dotenv>=1.0",
     "yfinance>=0.2.40",
@@ -15,6 +16,11 @@ dependencies = [
     "edgartools>=4.0",
     "pandas>=2.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/cstamigo-droid/equity-intel-mcp"
+Repository = "https://github.com/cstamigo-droid/equity-intel-mcp"
+"Bug Tracker" = "https://github.com/cstamigo-droid/equity-intel-mcp/issues"
 
 [project.scripts]
 equity-intel-mcp = "equity_intel_mcp.server:main"
