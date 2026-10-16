@@ -40,3 +40,12 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+
+def test_failed_signal_redacts_query_credentials():
+    from equity_intel_mcp.signal import Signal
+    err = "401 Client Error: Unauthorized for url: https://finnhub.io/api/v1/stock/recommendation?symbol=AAPL&token=abc123SECRET"
+    sig = Signal.failed("analysts", err)
+    assert "abc123SECRET" not in sig.error
+    assert "abc123SECRET" not in sig.summary
+    assert "token=***" in sig.error

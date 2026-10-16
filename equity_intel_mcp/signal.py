@@ -7,8 +7,18 @@ verdict; informational sources (e.g. a quote snapshot) carry data only.
 """
 from __future__ import annotations
 
+import re
 from dataclasses import asdict, dataclass, field
 from typing import Any
+
+# Query-string credentials (e.g. Finnhub's ?token=...) end up inside requests'
+# HTTPError messages; never let them reach the agent's context or logs.
+_SECRET_QS = re.compile(r"(?i)\b(token|apikey|api_key|key|access_token)=[^&\s'\"]+")
+
+
+def redact(text: str) -> str:
+    """Mask credential-looking query parameters in an error string."""
+    return _SECRET_QS.sub(lambda m: f"{m.group(1)}=***", text)
 
 
 def clamp(x: float, lo: float, hi: float) -> float:
@@ -61,7 +71,9 @@ class Signal:
         """Graceful degradation: a missing source NEVER injects a fake bearish score.
 
         It returns ok=False with score 0 so the composite can simply skip it.
+        Credentials in the error text are redacted before it is stored.
         """
+        error = redact(error)
         return cls(
             source=source,
             ok=False,
