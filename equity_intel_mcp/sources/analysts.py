@@ -18,7 +18,13 @@ _CONF_CAP = 0.75
 
 
 def _pull(ticker: str, key: str) -> dict | None:
-    resp = requests.get(_URL, params={"symbol": ticker, "token": key}, timeout=10)
+    # Key goes in a header, never the query string, so it cannot appear in error URLs.
+    resp = requests.get(
+        _URL,
+        params={"symbol": ticker},
+        headers={"X-Finnhub-Token": key},
+        timeout=10,
+    )
     resp.raise_for_status()
     data = resp.json()
     return data[0] if isinstance(data, list) and data else None  # newest period first
@@ -26,7 +32,7 @@ def _pull(ticker: str, key: str) -> dict | None:
 
 def fetch(ticker: str) -> Signal:
     t = ticker.upper().strip()
-    key = os.getenv("FINNHUB_API_KEY", "")
+    key = os.getenv("FINNHUB_API_KEY", "").strip()
     if not key:
         return Signal.failed("analysts", "FINNHUB_API_KEY not set")
     try:

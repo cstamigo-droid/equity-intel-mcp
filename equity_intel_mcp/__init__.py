@@ -6,4 +6,4 @@ consensus, options-implied moves, valuation & financial health, and a composite
 scored verdict — all from free/public data sources with graceful degradation.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.3"
